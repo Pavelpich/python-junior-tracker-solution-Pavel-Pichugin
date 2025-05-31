@@ -1,13 +1,16 @@
-from fastapi import APIRouter
-
-router = APIRouter()
+import pytest
 
 
-@router.get("/tasks")
-def read_tasks():
+@pytest.mark.parametrize(
+    "task_data",
+    [
+        {"title": "Test 1", "completed": False},
+        {"title": "Buy milk", "completed": True},
+    ],
+)
+def test_create_task(client, task_data):
     pass
 
 
-@router.post("/tasks")
-def add_task():
+def test_read_tasks(client):
     pass
