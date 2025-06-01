@@ -1,10 +1,9 @@
 from typing import List
-
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.schemas.task import TaskCreate, TaskRead
-from app.crud.task import get_tasks, create_task
+from app.crud.task import get_tasks, create_task, get_task, delete_task
 from app.db.database import get_db
 
 router = APIRouter()
@@ -30,4 +29,10 @@ def add_task(task: TaskCreate, db: Session = Depends(get_db)):
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_task(task_id: int, db: Session = Depends(get_db)) -> None:
-    raise NotImplementedError
+    existing = get_task(db, task_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
+    delete_task(db, task_id)
+    return None

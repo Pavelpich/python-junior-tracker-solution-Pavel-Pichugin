@@ -8,7 +8,17 @@ dependencies = [
     "fastapi>=0.115.12",
     "httpx>=0.28.1",
     "pre-commit>=4.2.0",
+    "psycopg>=3.2.9",
+    "pydantic-settings>=2.9.1",
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
     "sqlalchemy>=2.0.41",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]

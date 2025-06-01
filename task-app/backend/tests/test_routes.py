@@ -9,7 +9,6 @@ from fastapi.testclient import TestClient
         {"title": "Buy milk", "completed": True},
     ],
 )
-
 # Проверяем, что post /api/tasks возвращает созданную задачу с правилными полями
 def test_create_task(client: TestClient, payload: dict) -> None:
     """ """
@@ -22,13 +21,11 @@ def test_create_task(client: TestClient, payload: dict) -> None:
     assert data["completed"] == payload["completed"]
 
 
-# сначала создаём задачу, затем проверяем, что GET /api/tasks возвращает список, содержащий как минимум эту задачу.
+# сначала создаём задачу, затем проверяем,
+# что GET /api/tasks возвращает список, содержащий как минимум эту задачу.
 def test_read_tasks(client: TestClient) -> None:
     # создаём задачу
-    client.post(
-        "/api/tasks", 
-        json={"title": "First Task", "completed": False}
-    )
+    client.post("/api/tasks", json={"title": "First Task", "completed": False})
 
     # получаем спиисок
     response = client.get("/api/tasks")
