@@ -1,13 +1,33 @@
-from fastapi import APIRouter
+from typing import List
+
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
+
+from app.schemas.task import TaskCreate, TaskRead
+from app.crud.task import get_tasks, create_task
+from app.db.database import get_db
 
 router = APIRouter()
 
 
-@router.get("/tasks")
-def read_tasks():
-    pass
+@router.get("/tasks", response_model=List[TaskRead])
+def read_tasks(db: Session = Depends(get_db)) -> List[TaskRead]:
+    """
+    Возвращает список всех задач
+    """
+    tasks = get_tasks(db)
+    return tasks
 
 
-@router.post("/tasks")
-def add_task():
-    pass
+@router.post("/tasks", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
+def add_task(task: TaskCreate, db: Session = Depends(get_db)):
+    """
+    Принимает json с данными задачи и из них создаёт новую задачу
+    """
+    new_task = create_task(db, task)
+    return new_task
+
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_task(task_id: int, db: Session = Depends(get_db)) -> None:
+    raise NotImplementedError
