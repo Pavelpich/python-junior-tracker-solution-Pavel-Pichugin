@@ -9,7 +9,7 @@ from app.db.database import get_db
 router = APIRouter()
 
 
-@router.get("/tasks", response_model=List[TaskRead])
+@router.get("/", response_model=List[TaskRead])
 def read_tasks(db: Session = Depends(get_db)) -> List[TaskRead]:
     """
     Возвращает список всех задач
@@ -18,7 +18,7 @@ def read_tasks(db: Session = Depends(get_db)) -> List[TaskRead]:
     return tasks
 
 
-@router.post("/tasks", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
 def add_task(task: TaskCreate, db: Session = Depends(get_db)):
     """
     Принимает json с данными задачи и из них создаёт новую задачу

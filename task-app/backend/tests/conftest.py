@@ -1,19 +1,43 @@
 from typing import Generator
-
+import os
 import pytest
-from fastapi.testclient import TestClient
+from starlette.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from app.main import app
-from app.db.database import Base, get_db
-
 # SQLite in-memory в тесте
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["ENVIRONMENT"] = "test"
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+import app.db.database as database_module
+from app.main import app
+from app.db.database import Base, get_db
+
+database_module.engine = engine
+database_module.SessionLocal = TestingSessionLocal
+
+
+@pytest.fixture(scope="session", autouse=True)
+def prepare_database():
+    db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../test.db"))
+    if os.path.exists(db_path):
+        os.remove(db_path)
+
+    Base.metadata.create_all(bind=engine)
+    yield
+
+    Base.metadata.drop_all(bind=engine)
+    engine.dispose()
+
+    # удаляем test.db
+    if os.path.exists(db_path):
+        os.remove(db_path)
 
 
 @pytest.fixture(scope="function")
@@ -22,13 +46,11 @@ def db_override() -> Generator[Session, None, None]:
     перед каждым тестом создаём таблицы
     Возвращает сессию SQLAlchemy.
     """
-    Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
-        Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")

@@ -1,14 +1,15 @@
 import pytest
-from fastapi.testclient import TestClient
+from starlette.testclient import TestClient
 
 
 @pytest.mark.parametrize(
-    "task_data",
+    "payload",
     [
         {"title": "Test 1", "completed": False},
         {"title": "Buy milk", "completed": True},
     ],
 )
+
 # Проверяем, что post /api/tasks возвращает созданную задачу с правилными полями
 def test_create_task(client: TestClient, payload: dict) -> None:
     """ """
@@ -21,8 +22,7 @@ def test_create_task(client: TestClient, payload: dict) -> None:
     assert data["completed"] == payload["completed"]
 
 
-# сначала создаём задачу, затем проверяем,
-# что GET /api/tasks возвращает список, содержащий как минимум эту задачу.
+# сначала создаём задачу, затем проверяем, что GET /api/tasks возвращает список, содержащий как минимум эту задачу.
 def test_read_tasks(client: TestClient) -> None:
     # создаём задачу
     client.post("/api/tasks", json={"title": "First Task", "completed": False})
